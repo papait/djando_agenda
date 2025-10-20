@@ -36,7 +36,7 @@ def contact(request :HttpRequest, contact_id):
                         pk=contact_id, show=True)
     #if singles_contact is None:
     #    raise Http404()
-    #print(contacts.query)
+    #print(single_contact.query)
     contact_name = f'{single_contact.firts_name} {single_contact.last_name} - '
 
 
