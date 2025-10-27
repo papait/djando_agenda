@@ -1,19 +1,21 @@
 from django.core.exceptions import ValidationError
 from django.shortcuts import render
+from django.contrib.auth.models import User
 from django import forms
 from contact.models import Contact
+from django.contrib.auth.forms import UserCreationForm
+
 
 class ContactForm(forms.ModelForm):
-    firts_name = forms.CharField(
-        widget=forms.TextInput(
+
+
+    picture = forms.ImageField(
+        widget=forms.FileInput(
             attrs={
-                'class': 'classe-a classe-b',
-                'placeholder': 'Aqui veio do init',
+                'accept' : 'image/*'
             }
-        ),
-        label='First Name',
-        help_text='Texto de ajuda para seu usuário',
         )
+    )
 
     class Meta:
         model =  Contact
@@ -22,7 +24,8 @@ class ContactForm(forms.ModelForm):
                   'phone',
                   'email',
                   'description',
-                  'category'
+                  'category',
+                  'picture',
                   )
         #Existe forma de fazer pelo init ou recriando  campo novamente
         # widgets = {
@@ -44,3 +47,26 @@ class ContactForm(forms.ModelForm):
     #     )
 
     #     return super().clean()
+
+class RegisterForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = (
+            "first_name",
+            "last_name",
+            'email' ,
+            "username",
+             'password1',
+             'password2'   ,       
+
+        )
+    def clean_email(self):
+        email =  self.cleaned_data.get('email')
+
+        if User.objects.filter(email=email).exists():
+            self.add_error(
+                'email',
+                ValidationError("Ja existe este email",code='invalid')
+            )
+
+        return email

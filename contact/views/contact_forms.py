@@ -10,7 +10,7 @@ def create(request :HttpRequest):
 
 
     if request.method == 'POST':
-        form = ContactForm(data=request.POST)
+        form = ContactForm(data=request.POST,files= request.FILES)
 
         context = {
             'form': form,
@@ -45,7 +45,7 @@ def update(request :HttpRequest, contact_id):
     contact = get_object_or_404(Contact, id=contact_id,show = True)
 
     if request.method == 'POST':
-        form = ContactForm(data=request.POST,instance=contact) # ja tenho a instancia acriada
+        form = ContactForm(data=request.POST,files= request.FILES ,instance=contact) # ja tenho a instancia acriada
 
         context = {
             'form': form,
@@ -75,4 +75,20 @@ def update(request :HttpRequest, contact_id):
         )
 
    
+def delete(request :HttpRequest, contact_id):
+    contact = get_object_or_404(Contact, id=contact_id,show = True)
 
+    confirmation = request.POST.get('confirmation', 'no')
+
+    if confirmation == 'yes':
+        contact.delete()
+        return redirect('contact:index')
+    
+    return render(
+        request,
+        'contact/contact.html',
+        {
+            'contact': contact ,
+            'confirmation' : confirmation  
+        }
+    )
