@@ -1,15 +1,13 @@
 from django.http import HttpRequest
-from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from contact.forms import ContactForm, RegisterForm
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from contact.forms import RegisterUpdateForm, RegisterForm
 from django.contrib import messages ,auth
 from django.contrib.auth.forms import AuthenticationForm
 
 def register(request: HttpRequest):
     
     form = RegisterForm()
-
-    
 
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -49,6 +47,34 @@ def login_view(request : HttpRequest):
         }
     )
 
+@login_required(login_url='contact:login')
 def logout_view(request):
     auth.logout(request)
+    return redirect('contact:login')
+
+@login_required(login_url='contact:login')
+def user_update(request: HttpRequest):
+    form = RegisterUpdateForm(instance=request.user)
+    
+    if request.method != 'POST':
+         return render(
+        request,
+        'contact/update.html',
+        {
+            'form': form
+        }
+        )
+
+    form = RegisterUpdateForm(data=request.POST, instance=request.user)
+
+    if not form.is_valid():
+         return render(
+        request,
+        'contact/update.html',
+        {
+            'form': form
+        }
+        )
+    form.save()
+
     return redirect('contact:login')
